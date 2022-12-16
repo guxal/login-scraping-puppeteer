@@ -2,8 +2,8 @@
 
 ## Required
 
-node v14.15.0
-npm  v6.14.8
+- node v14.15.0
+- npm  v6.14.8
 
 ## Dependencies
 
