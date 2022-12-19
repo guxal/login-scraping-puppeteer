@@ -27,7 +27,7 @@ import hidden from 'puppeteer-extra-plugin-stealth';
 
      // Type into search box.
      await page.waitForSelector('#username')
-          .then(() => console.log('First URL with image: '));
+          .then(() => console.log('Find username input...'));
      await page.type('#username', '<username>', {"delay": 100});
      await page.type('#password', '<password>', {"delay": 100});
      
