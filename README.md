@@ -30,7 +30,7 @@ node index.mjs
 ```
 
 ## More about 2captcha
-This example uses the RecaptchaPlugin from Puppeteer Extra, configured to work with 2captcha for effective CAPTCHA resolution. Learn more about how to integrate and optimize 2captcha in your automation projects on their official (website)[https://2captcha.com/].
+This example uses the RecaptchaPlugin from Puppeteer Extra, configured to work with 2captcha for effective CAPTCHA resolution. Learn more about how to integrate and optimize 2captcha in your automation projects on their official [website](https://2captcha.com/).
 
 ## General Setup
 Make sure to follow the installation instructions and correctly configure the necessary API keys and tokens, such as the 2captcha token, to ensure optimal operation of the script.
