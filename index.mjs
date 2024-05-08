@@ -1,56 +1,68 @@
 import puppeteer from 'puppeteer-extra';
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
-import {executablePath} from 'puppeteer'
+import { executablePath } from 'puppeteer'
 import hidden from 'puppeteer-extra-plugin-stealth';
 
-(async  () => {
-     puppeteer.use(
-          RecaptchaPlugin({
-               provider: { id: '2captcha', token: '7af124a60f7f8554e0db9d84a9820b99' },
-               visualFeedback: true // colorize reCAPTCHAs (violet = detected, green = solved)
-          })
-     )
+(async () => {
+    // Use the recaptcha plugin to solve reCAPTCHAs, configure it with your 2captcha provider token
+    puppeteer.use(
+        RecaptchaPlugin({
+            provider: { id: '2captcha', token: '' }, // You need to replace '' with your actual 2captcha API token
+            visualFeedback: true // This option colorizes reCAPTCHAs for visual feedback (violet = detected, green = solved)
+        })
+    );
 
-     puppeteer.use(hidden())
-     const browser = await puppeteer.launch({
-          args: ['--no-sandbox'],
-          headless: false,
-          ignoreHTTPSErrors: true,
-          executablePath: executablePath(),
-     });
-     const page = await browser.newPage();
+    // Use stealth plugin to prevent detection of the bot by the website
+    puppeteer.use(hidden());
 
-     await page.setDefaultNavigationTimeout(0)
-     await page.goto('https://profile.callofduty.com/cod/login', {
-          waitUntil: 'networkidle2'
-          });
+    // Launching a headless browser instance
+    const browser = await puppeteer.launch({
+        args: ['--no-sandbox'], // Disables the Chrome sandboxing - improves performance but reduces security
+        headless: true, // Runs Chrome in headless mode
+        ignoreHTTPSErrors: true, // Ignores HTTPS/WSS certificate errors
+        executablePath: executablePath(), // Specifies the path to the Chromium instance to use
+    });
+    
+    const page = await browser.newPage();
 
-     // Type into search box.
-     await page.waitForSelector('#username')
-          .then(() => console.log('Find username input...'));
-     await page.type('#username', '<username>', {"delay": 100});
-     await page.type('#password', '<password>', {"delay": 100});
-     
-     await page.solveRecaptchas()
-     
-     
-     await Promise.all([
-          page.waitForNavigation(),
-          page.click(`#login-button`)
-     ])
+    // Sets the navigation timeout to infinite to wait for pages with long loading times
+    await page.setDefaultNavigationTimeout(0);
+    
+    // Navigates to the Call of Duty login page
+    await page.goto('https://profile.callofduty.com/cod/login', {
+        waitUntil: 'networkidle2' // Consider navigation to be finished when there are no more than 2 network connections for at least 500 ms
+    });
 
-     const cookies = await page.cookies();
+    // Wait for the username input field to be available, then log the action
+    await page.waitForSelector('#username')
+        .then(() => console.log('Find username input...'));
+    
+    // Type the username and password with a delay to mimic human interaction
+    await page.type('#username', '<username>', { "delay": 100 }); // Replace '<username>' with your actual username
+    await page.type('#password', '<password>', { "delay": 100 }); // Replace '<password>' with your actual password
+    
+    // Solve any CAPTCHAs on the page using the recaptcha plugin
+    await page.solveRecaptchas();
+    
+    // Perform simultaneous navigation and button click, waits for the next page to load after clicking the login button
+    await Promise.all([
+        page.waitForNavigation(),
+        page.click(`#login-button`)
+    ]);
 
-     // console.log(cookies);
+    // Retrieve cookies from the current page
+    const cookies = await page.cookies();
 
-     console.log(getCookie(cookies, 'ACT_SSO_COOKIE'))
+    // Retrieve a specific cookie by name and log it (useful for debugging or session persistence)
+    console.log(getCookie(cookies, 'ACT_SSO_COOKIE')); // Searches for a cookie named 'ACT_SSO_COOKIE'
 
-     await browser.close();
+    // Close the browser instance
+    await browser.close();
 })();
 
-
-function getCookie(cookies, name){
-     return cookies.filter(
-          function(cookies){ return cookies.name == name}
-     )
+// Function to filter and retrieve cookies by their name
+function getCookie(cookies, name) {
+    return cookies.filter(
+        function (cookies) { return cookies.name === name }
+    )
 }
